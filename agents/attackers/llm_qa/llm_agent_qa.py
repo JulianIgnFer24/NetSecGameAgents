@@ -150,7 +150,15 @@ if __name__ == "__main__":
     agent = BaseAgent(args.host, args.port, "Attacker")
 
     load_dotenv()
-    llm_client = LLMClient(api_key=os.getenv("OPENAI_API_KEY"), base_url=args.base_url)
+    api_key = os.getenv("OPENAI_API_KEY")
+    base_url = args.base_url
+    if api_key is None:
+        api_key = "ollama"
+        base_url = args.base_url or "http://localhost:11434"
+        logger.info(
+            "OPENAI_API_KEY not found. Using local model at %s", base_url
+        )
+    llm_client = LLMClient(api_key=api_key, base_url=base_url)
     tracer = get_tracer(args.enable_tracing)
     
     if not args.disable_mlflow:
